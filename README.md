@@ -1,4 +1,4 @@
-README # Pokedex
+# Pokedex
 
 A pokedex made with HTML, CSS and Javascript.
 
