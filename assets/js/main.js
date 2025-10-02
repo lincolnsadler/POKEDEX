@@ -1,9 +1,18 @@
-function convertPokemonToLi(pokemon) {
-    return `
-    <li class="pokemon ${pokemon.type}">
+const pokemonsOl = document.getElementById("pokemonsOl");
+const loadMoreButton = document.getElementById("load-more-button");
+const maxRecords = 15;
+const limit = 5;
+let offset = 0;
+
+// chama pokeApi.getPokemons() e renderiza ele,
+function loadPokemonItens(offset, limit) {
+    pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
+        const newHtml = pokemons
+            .map(
+                (pokemon) => `
+                    <li class="pokemon ${pokemon.type}">
                     <span class="number">#${pokemon.number}</span>
                     <span class="name">${pokemon.name}</span>
-
                     <div class="detail">
                         <ol class="types">
                             ${pokemon.types
@@ -12,20 +21,32 @@ function convertPokemonToLi(pokemon) {
                                 )
                                 .join("")}
                         </ol>
-
                         <img
                             src="${pokemon.photo}"
                             alt="${pokemon.name}"
                         />
                     </div>
                 </li>
-    `;
+                `
+            )
+            .join("");
+        pokemonsOl.innerHTML += newHtml;
+    });
 }
 
-// pega elemento OL para adicionar o Li depois
-const pokemonsOl = document.getElementById("pokemonsOl");
+loadPokemonItens(offset, limit);
 
-// chama pokeApi.getPokemons() e renderiza ele,
-pokeApi.getPokemons().then((pokemons = []) => {
-    pokemonsOl.innerHTML += pokemons.map(convertPokemonToLi).join(" ");
+loadMoreButton.addEventListener("click", () => {
+    offset += limit;
+
+    const qntRecordNextPage = offset + limit;
+
+    if (qntRecordNextPage >= maxRecords) {
+        const newLimit = maxRecords - offset;
+        loadPokemonItens(offset, newLimit);
+
+        loadMoreButton.parentElement.removeChild(loadMoreButton);
+    } else {
+        loadPokemonItens(offset, limit);
+    }
 });
